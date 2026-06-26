@@ -1,8 +1,60 @@
 #Inital script
 # Creating the folders step 1
+apt update
+apt install build-essential make 
+
 mkdir ~/tcp-flag-analyzer
 cd ~/tcp-flag-analyzer
 
 mkdir src
 touch src/tcp_flag_analyzer.c
+## code iniside the src folder
+nano src/tcp_flag_analyzer.c
+src/tcp_flag_analyzer.c
+#include <linux/init.h>
+#include <linux/kernel.h>
+#include <linux/module.h>
+
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("Sangesh");
+MODULE_DESCRIPTION("TCP Flag Analyzer");
+MODULE_VERSION("0.1");
+
+static int __init tcp_flag_init(void)
+{
+    pr_info("[TCP-Analyzer] Module loaded\n");
+    return 0;
+}
+
+static void __exit tcp_flag_exit(void)
+{
+    pr_info("[TCP-Analyzer] Module unloaded\n");
+}
+
+module_init(tcp_flag_init);
+module_exit(tcp_flag_exit);
+
+Code ends.
+# Creating Makefile
+nano Makefile
+obj-m += tcp_flag_analyzer.o
+
+KDIR := /lib/modules/$(shell uname -r)/build
+PWD  := $(shell pwd)
+
+all:
+	cp src/tcp_flag_analyzer.c .
+	$(MAKE) -C $(KDIR) M=$(PWD) modules
+
+clean:
+	rm -f tcp_flag_analyzer.c
+	$(MAKE) -C $(KDIR) M=$(PWD) clean
+
+end of the file
+
+
+make 
+
+
+
 touch Makefile
