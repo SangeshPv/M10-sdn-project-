@@ -1,0 +1,8 @@
+#Inital script
+# Creating the folders step 1
+mkdir ~/tcp-flag-analyzer
+cd ~/tcp-flag-analyzer
+
+mkdir src
+touch src/tcp_flag_analyzer.c
+touch Makefile
