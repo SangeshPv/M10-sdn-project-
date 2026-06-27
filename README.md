@@ -59,3 +59,63 @@ root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyz
 [ 8436.183647] URG : 0
 [ 8436.183649] TCP Flag Analyzer Unloaded
 root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer#
+
+
+
+Output for the intermidiate part for TCP analyzer State connection 
+root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# insmod tcp_flag_analyzer.ko
+root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# for i in {1..10}; do     curl -s https://google.com > /dev/null; done
+root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# rmmod tcp_flag_analyzer
+root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# dmesg | tail -50
+[10493.494449] TCP Packet
+[10493.494546] Source IP: 142.251.27.102
+[10493.494585] Destination IP: 192.168.64.10
+[10493.494618] Ports: 443 -> 34914
+[10493.494651] Flags: SYN=0 ACK=1 FIN=0 RST=0 PSH=1 URG=0
+[10493.494683] TCP Packet
+[10493.494746] Source IP: 142.251.27.102
+[10493.494774] Destination IP: 192.168.64.10
+[10493.494800] Ports: 443 -> 34914
+[10493.494838] Flags: SYN=0 ACK=1 FIN=0 RST=0 PSH=1 URG=0
+[10493.494865] TCP Packet
+[10493.494915] Source IP: 142.251.27.102
+[10493.494943] Destination IP: 192.168.64.10
+[10493.494969] Ports: 443 -> 34914
+[10493.495008] Flags: SYN=0 ACK=1 FIN=0 RST=0 PSH=1 URG=0
+[10493.510762] TCP Packet
+[10493.510774] Source IP: 142.251.27.102
+[10493.510780] Destination IP: 192.168.64.10
+[10493.510783] Ports: 443 -> 34914
+[10493.510787] Flags: SYN=0 ACK=1 FIN=0 RST=0 PSH=0 URG=0
+[10493.510792] TCP Packet
+[10493.510794] Source IP: 142.251.27.102
+[10493.510797] Destination IP: 192.168.64.10
+[10493.510806] Ports: 443 -> 34914
+[10493.510809] Flags: SYN=0 ACK=1 FIN=0 RST=0 PSH=0 URG=0
+[10493.510812] TCP Packet
+[10493.510815] Source IP: 142.251.27.102
+[10493.510817] Destination IP: 192.168.64.10
+[10493.510819] Ports: 443 -> 34914
+[10493.510822] Flags: SYN=0 ACK=1 FIN=1 RST=0 PSH=0 URG=0
+[10493.512424] TCP Packet
+[10493.512431] Source IP: 142.251.27.102
+[10493.512439] Destination IP: 192.168.64.10
+[10493.512441] Ports: 443 -> 34914
+[10493.512444] Flags: SYN=0 ACK=1 FIN=0 RST=0 PSH=0 URG=0
+[10520.804217] ===== TCP Flag Statistics =====
+[10520.804228] SYN : 10
+[10520.804232] ACK : 161
+[10520.804235] FIN : 10
+[10520.804238] RST : 0
+[10520.804241] PSH : 87
+[10520.804244] URG : 0
+[10520.804247] ===== TCP Connection State Statistics =====
+[10520.804250] STATE_SYN : 0
+[10520.804253] STATE_SYN_ACK : 10
+[10520.804255] STATE_ACK : 54
+[10520.804258] STATE_FIN : 10
+[10520.804261] STATE_RST : 0
+[10520.804264] STATE_ESTABLISHED : 87
+[10520.804267] TCP Flag Analyzer Unloaded
+root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# 
+

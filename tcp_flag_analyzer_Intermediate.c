@@ -20,8 +20,18 @@ enum tcp_flag_index {
     TCP_URG,
     TCP_FLAG_COUNT
 };
-
+/*This intermediate project to monitor the state of the TCP connection */
+enum tcp_conn_state {
+    STATE_SYN = 0,
+    STATE_SYN_ACK,
+    STATE_ACK,
+    STATE_FIN,
+    STATE_RST,
+    STATE_ESTABLISHED,
+    STATE_COUNT
+};
 static atomic_t flag_counter[TCP_FLAG_COUNT];
+static atomic_t state_counter[STATE_COUNT];
 
 /*
  * Netfilter Hook Function
@@ -88,6 +98,29 @@ if (tcp_header->psh)
 
 if (tcp_header->urg)
     atomic_inc(&flag_counter[TCP_URG]);
+
+    /* Connection state counters */
+
+if (tcp_header->syn && !tcp_header->ack)
+    atomic_inc(&state_counter[STATE_SYN]);
+
+if (tcp_header->syn && tcp_header->ack)
+    atomic_inc(&state_counter[STATE_SYN_ACK]);
+
+if (!tcp_header->syn &&
+    tcp_header->ack &&
+    !tcp_header->psh &&
+    !tcp_header->fin)
+    atomic_inc(&state_counter[STATE_ACK]);
+
+if (tcp_header->fin)
+    atomic_inc(&state_counter[STATE_FIN]);
+
+if (tcp_header->rst)
+    atomic_inc(&state_counter[STATE_RST]);
+
+if (tcp_header->psh && tcp_header->ack)
+    atomic_inc(&state_counter[STATE_ESTABLISHED]);    
 return NF_ACCEPT;
 }
 static struct nf_hook_ops nfho = {
@@ -106,6 +139,9 @@ static int __init tcp_flag_init(void)
 
     for (i = 0; i < TCP_FLAG_COUNT; i++)
         atomic_set(&flag_counter[i], 0);
+     for (i = 0; i < STATE_COUNT; i++)
+        atomic_set(&state_counter[i], 0);
+    
 
     ret = nf_register_net_hook(&init_net, &nfho);
 
@@ -137,6 +173,14 @@ static void __exit tcp_flag_exit(void)
     printk(KERN_INFO "RST : %d\n", atomic_read(&flag_counter[TCP_RST]));
     printk(KERN_INFO "PSH : %d\n", atomic_read(&flag_counter[TCP_PSH]));
     printk(KERN_INFO "URG : %d\n", atomic_read(&flag_counter[TCP_URG]));
+
+    printk(KERN_INFO "===== TCP Connection State Statistics =====\n");
+    printk(KERN_INFO "STATE_SYN : %d\n", atomic_read(&state_counter[STATE_SYN]));
+    printk(KERN_INFO "STATE_SYN_ACK : %d\n", atomic_read(&state_counter[STATE_SYN_ACK]));
+    printk(KERN_INFO "STATE_ACK : %d\n", atomic_read(&state_counter[STATE_ACK]));
+    printk(KERN_INFO "STATE_FIN : %d\n", atomic_read(&state_counter[STATE_FIN]));
+    printk(KERN_INFO "STATE_RST : %d\n", atomic_read(&state_counter[STATE_RST]));
+    printk(KERN_INFO "STATE_ESTABLISHED : %d\n", atomic_read(&state_counter[STATE_ESTABLISHED]));
 
     /* Module unloaded message */
     printk(KERN_INFO "TCP Flag Analyzer Unloaded\n");
