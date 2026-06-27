@@ -3,6 +3,7 @@
 #include <linux/module.h>
 #include <linux/netfilter.h>
 #include <linux/netfilter_ipv4.h>
+#include <linux/ip.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Sangesh");
@@ -17,7 +18,20 @@ static unsigned int packet_hook(void *priv,
                                 struct sk_buff *skb,
                                 const struct nf_hook_state *state)
 {
-    printk(KERN_INFO "[TCP-Analyzer] Packet received\n");
+    struct iphdr *ip_header;
+
+    /* Safety check */
+    if (!skb)
+        return NF_ACCEPT;
+
+    /* Get the IPv4 header */
+    ip_header = ip_hdr(skb);
+
+    if (!ip_header)
+        return NF_ACCEPT;
+
+    printk(KERN_INFO "Source IP: %pI4\n", &ip_header->saddr);
+    printk(KERN_INFO "Destination IP: %pI4\n", &ip_header->daddr);
 
     return NF_ACCEPT;
 }
