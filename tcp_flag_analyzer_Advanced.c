@@ -7,6 +7,7 @@
 #include <linux/tcp.h>
 #include <linux/atomic.h>
 
+
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Sangesh");
 MODULE_DESCRIPTION("TCP Flag Analyzer");
@@ -32,6 +33,11 @@ enum tcp_conn_state {
 };
 static atomic_t flag_counter[TCP_FLAG_COUNT];
 static atomic_t state_counter[STATE_COUNT];
+/* advanced project
+* to check syn+fin stealth detection and syn flood detection
+*/
+static atomic_t syn_fin_counter;
+
 
 /*
  * Netfilter Hook Function
@@ -121,6 +127,25 @@ if (tcp_header->rst)
 
 if (tcp_header->psh && tcp_header->ack)
     atomic_inc(&state_counter[STATE_ESTABLISHED]);    
+/* Detect SYN + FIN packets */
+
+if (tcp_header->syn && tcp_header->fin)
+{
+    atomic_inc(&syn_fin_counter);
+
+    printk(KERN_WARNING
+           "ALERT: SYN+FIN packet detected!\n");
+
+    printk(KERN_WARNING
+           "Source: %pI4:%u\n",
+           &ip_header->saddr,
+           ntohs(tcp_header->source));
+
+    printk(KERN_WARNING
+           "Destination: %pI4:%u\n",
+           &ip_header->daddr,
+           ntohs(tcp_header->dest));
+}    
 return NF_ACCEPT;
 }
 static struct nf_hook_ops nfho = {
@@ -141,6 +166,8 @@ static int __init tcp_flag_init(void)
         atomic_set(&flag_counter[i], 0);
      for (i = 0; i < STATE_COUNT; i++)
         atomic_set(&state_counter[i], 0);
+
+    atomic_set(&syn_fin_counter, 0);   
     
 
     ret = nf_register_net_hook(&init_net, &nfho);
@@ -181,6 +208,7 @@ static void __exit tcp_flag_exit(void)
     printk(KERN_INFO "STATE_FIN : %d\n", atomic_read(&state_counter[STATE_FIN]));
     printk(KERN_INFO "STATE_RST : %d\n", atomic_read(&state_counter[STATE_RST]));
     printk(KERN_INFO "STATE_ESTABLISHED : %d\n", atomic_read(&state_counter[STATE_ESTABLISHED]));
+    printk(KERN_INFO "SYN+FIN Detected : %d\n", atomic_read(&syn_fin_counter));
 
     /* Module unloaded message */
     printk(KERN_INFO "TCP Flag Analyzer Unloaded\n");
