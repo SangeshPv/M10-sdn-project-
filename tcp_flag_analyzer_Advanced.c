@@ -33,6 +33,8 @@ enum tcp_conn_state {
 };
 static atomic_t flag_counter[TCP_FLAG_COUNT];
 static atomic_t state_counter[STATE_COUNT];
+static atomic_t null_scan_counter;
+
 /* advanced project
 * to check syn+fin stealth detection and syn flood detection
 */
@@ -146,6 +148,28 @@ if (tcp_header->syn && tcp_header->fin)
            &ip_header->daddr,
            ntohs(tcp_header->dest));
 }    
+if (!tcp_header->syn &&
+    !tcp_header->ack &&
+    !tcp_header->fin &&
+    !tcp_header->rst &&
+    !tcp_header->psh &&
+    !tcp_header->urg)
+{
+    atomic_inc(&null_scan_counter);
+
+    printk(KERN_WARNING
+           "ALERT: NULL scan detected!\n");
+
+    printk(KERN_WARNING
+           "Source: %pI4:%u\n",
+           &ip_header->saddr,
+           ntohs(tcp_header->source));
+
+    printk(KERN_WARNING
+           "Destination: %pI4:%u\n",
+           &ip_header->daddr,
+           ntohs(tcp_header->dest));
+}
 return NF_ACCEPT;
 }
 static struct nf_hook_ops nfho = {
@@ -168,7 +192,7 @@ static int __init tcp_flag_init(void)
         atomic_set(&state_counter[i], 0);
 
     atomic_set(&syn_fin_counter, 0);   
-    
+    atomic_set(&null_scan_counter, 0);
 
     ret = nf_register_net_hook(&init_net, &nfho);
 
@@ -209,6 +233,7 @@ static void __exit tcp_flag_exit(void)
     printk(KERN_INFO "STATE_RST : %d\n", atomic_read(&state_counter[STATE_RST]));
     printk(KERN_INFO "STATE_ESTABLISHED : %d\n", atomic_read(&state_counter[STATE_ESTABLISHED]));
     printk(KERN_INFO "SYN+FIN Detected : %d\n", atomic_read(&syn_fin_counter));
+    printk(KERN_INFO "NULL Scan Detected : %d\n", atomic_read(&null_scan_counter));
 
     /* Module unloaded message */
     printk(KERN_INFO "TCP Flag Analyzer Unloaded\n");
