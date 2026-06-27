@@ -4,6 +4,7 @@
 #include <linux/netfilter.h>
 #include <linux/netfilter_ipv4.h>
 #include <linux/ip.h>
+#include <linux/tcp.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Sangesh");
@@ -21,19 +22,23 @@ static unsigned int packet_hook(void *priv,
     struct iphdr *ip_header;
 
     /* Safety check */
-    if (!skb)
-        return NF_ACCEPT;
-
-    /* Get the IPv4 header */
-    ip_header = ip_hdr(skb);
-
-    if (!ip_header)
-        return NF_ACCEPT;
-
-    printk(KERN_INFO "Source IP: %pI4\n", &ip_header->saddr);
-    printk(KERN_INFO "Destination IP: %pI4\n", &ip_header->daddr);
-
+if (!skb)
     return NF_ACCEPT;
+
+ip_header = ip_hdr(skb);
+
+if (!ip_header)
+    return NF_ACCEPT;
+
+/* Only process TCP packets */
+if (ip_header->protocol != IPPROTO_TCP)
+    return NF_ACCEPT;
+
+printk(KERN_INFO "TCP Packet\n");
+printk(KERN_INFO "Source IP: %pI4\n", &ip_header->saddr);
+printk(KERN_INFO "Destination IP: %pI4\n", &ip_header->daddr);
+
+return NF_ACCEPT;
 }
 static struct nf_hook_ops nfho = {
     .hook = packet_hook,
@@ -61,8 +66,8 @@ static int __init tcp_flag_init(void)
 }
 
 /*
- * Module Cleanup
- * Runs when the module is removed using rmmod.
+ * Netfilter Hook Function
+ * Called whenever an IPv4 packet reaches the PRE_ROUTING hook.
  */
 
 static void __exit tcp_flag_exit(void)
