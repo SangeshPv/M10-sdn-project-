@@ -39,6 +39,7 @@ static atomic_t null_scan_counter;
 * to check syn+fin stealth detection and syn flood detection
 */
 static atomic_t syn_fin_counter;
+static atomic_t xmas_scan_counter;
 
 
 /*
@@ -170,6 +171,26 @@ if (!tcp_header->syn &&
            &ip_header->daddr,
            ntohs(tcp_header->dest));
 }
+
+/* Detect XMAS packets */
+if (tcp_header->fin && tcp_header->psh && tcp_header->urg)
+{
+    atomic_inc(&xmas_scan_counter);
+
+    printk(KERN_WARNING
+           "ALERT: XMAS scan detected!\n");
+
+    printk(KERN_WARNING
+           "Source: %pI4:%u\n",
+           &ip_header->saddr,
+           ntohs(tcp_header->source));
+
+    printk(KERN_WARNING
+           "Destination: %pI4:%u\n",
+           &ip_header->daddr,
+           ntohs(tcp_header->dest));
+}
+
 return NF_ACCEPT;
 }
 static struct nf_hook_ops nfho = {
@@ -193,6 +214,9 @@ static int __init tcp_flag_init(void)
 
     atomic_set(&syn_fin_counter, 0);   
     atomic_set(&null_scan_counter, 0);
+    /* The xmas packet for advanced project
+    */
+    atomic_set(&xmas_scan_counter, 0);
 
     ret = nf_register_net_hook(&init_net, &nfho);
 
@@ -237,6 +261,7 @@ static void __exit tcp_flag_exit(void)
 
     /* Module unloaded message */
     printk(KERN_INFO "TCP Flag Analyzer Unloaded\n");
+    printk(KERN_INFO "XMAS Scan Detected : %d\n", atomic_read(&xmas_scan_counter));
 }
 
 module_init(tcp_flag_init);
