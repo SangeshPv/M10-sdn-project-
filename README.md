@@ -1,5 +1,18 @@
 # M10-sdn-project-
 Project for SDN TCP analyzer
+How to enter the root folder
+cd /root/projects/tcp-flag-analyzer
+
+testing after entering the root folder
+make clean
+make
+
+sudo insmod tcp_flag_analyzer.ko
+curl https://google.com
+sudo rmmod tcp_flag_analyzer
+dmesg | tail -50
+
+
 OUTPUT FOR THE BASIC PROJECT
 root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# insmod tcp_flag_analyzer.ko
 root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# for i in {1..10}
@@ -117,6 +130,64 @@ root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyz
 [10520.804261] STATE_RST : 0
 [10520.804264] STATE_ESTABLISHED : 87
 [10520.804267] TCP Flag Analyzer Unloaded
+root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# 
+
+
+OUTPUT FOR THE ADVANCED PROJECT
+root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# sudo insmod tcp_flag_analyzer.ko
+root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# seq 1 2000 | xargs -P20 -I{} curl -s https://youtube.com > /dev/null
+root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# rmmod tcp_flag_analyzer
+root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# dmesg | tail -50
+[ 1183.607206] Flags: SYN=0 ACK=1 FIN=0 RST=0 PSH=1 URG=0
+[ 1183.607238] TCP Packet
+[ 1183.607268] Source IP: 172.217.23.78
+[ 1183.607311] Destination IP: 192.168.64.10
+[ 1183.607356] Ports: 443 -> 55032
+[ 1183.607414] Flags: SYN=0 ACK=1 FIN=0 RST=0 PSH=1 URG=0
+[ 1183.607448] TCP Packet
+[ 1183.607479] Source IP: 172.217.23.78
+[ 1183.607529] Destination IP: 192.168.64.10
+[ 1183.607587] Ports: 443 -> 55032
+[ 1183.607628] Flags: SYN=0 ACK=1 FIN=0 RST=0 PSH=1 URG=0
+[ 1183.607657] TCP Packet
+[ 1183.607685] Source IP: 172.217.23.78
+[ 1183.607712] Destination IP: 192.168.64.10
+[ 1183.607752] Ports: 443 -> 55032
+[ 1183.607779] Flags: SYN=0 ACK=1 FIN=0 RST=0 PSH=1 URG=0
+[ 1183.625549] TCP Packet
+[ 1183.625651] Source IP: 172.217.23.78
+[ 1183.625683] Destination IP: 192.168.64.10
+[ 1183.625710] Ports: 443 -> 55032
+[ 1183.625738] Flags: SYN=0 ACK=1 FIN=0 RST=0 PSH=0 URG=0
+[ 1183.625766] TCP Packet
+[ 1183.625792] Source IP: 172.217.23.78
+[ 1183.625819] Destination IP: 192.168.64.10
+[ 1183.625859] Ports: 443 -> 55032
+[ 1183.625891] Flags: SYN=0 ACK=1 FIN=1 RST=0 PSH=0 URG=0
+[ 1183.626937] TCP Packet
+[ 1183.626998] Source IP: 172.217.23.78
+[ 1183.627031] Destination IP: 192.168.64.10
+[ 1183.627062] Ports: 443 -> 55032
+[ 1183.627093] Flags: SYN=0 ACK=1 FIN=0 RST=0 PSH=0 URG=0
+[ 1257.188973] ===== TCP Flag Statistics =====
+[ 1257.188985] SYN : 1984
+[ 1257.188988] ACK : 30776
+[ 1257.188991] FIN : 1881
+[ 1257.188994] RST : 2
+[ 1257.188997] PSH : 17838
+[ 1257.189000] URG : 0
+[ 1257.189003] ===== TCP Connection State Statistics =====
+[ 1257.189006] STATE_SYN : 0
+[ 1257.189009] STATE_SYN_ACK : 1984
+[ 1257.189012] STATE_ACK : 9072
+[ 1257.189015] STATE_FIN : 1881
+[ 1257.189017] STATE_RST : 2
+[ 1257.189020] STATE_ESTABLISHED : 17838
+[ 1257.189023] SYN+FIN Detected : 0
+[ 1257.189026] NULL Scan Detected : 0
+[ 1257.189030] XMAS Scan Detected : 0
+[ 1257.189033] SYN Flood Detected : 1885
+[ 1257.189036] TCP Flag Analyzer Unloaded
 root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# 
 
 
