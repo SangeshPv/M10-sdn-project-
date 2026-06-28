@@ -255,7 +255,9 @@ static void __exit tcp_flag_exit(void)
     printk(KERN_INFO "STATE_ACK : %d\n", atomic_read(&state_counter[STATE_ACK]));
     printk(KERN_INFO "STATE_FIN : %d\n", atomic_read(&state_counter[STATE_FIN]));
     printk(KERN_INFO "STATE_RST : %d\n", atomic_read(&state_counter[STATE_RST]));
+    /* Intermediate project to monitor the state of the TCP connection */
     printk(KERN_INFO "STATE_ESTABLISHED : %d\n", atomic_read(&state_counter[STATE_ESTABLISHED]));
+    /* Advanced project to check syn+fin stealth detection and syn flood detection */
     printk(KERN_INFO "SYN+FIN Detected : %d\n", atomic_read(&syn_fin_counter));
     printk(KERN_INFO "NULL Scan Detected : %d\n", atomic_read(&null_scan_counter));
 
