@@ -12,6 +12,7 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Sangesh");
 MODULE_DESCRIPTION("TCP Flag Analyzer");
 MODULE_VERSION("0.1");
+/* TCP Flag Indexes */
 enum tcp_flag_index {
     TCP_FIN = 0,
     TCP_SYN,
@@ -31,6 +32,9 @@ enum tcp_conn_state {
     STATE_ESTABLISHED,
     STATE_COUNT
 };
+/* Advanced project for defininng thresholds */
+#define SYN_FLOOD_THRESHOLD 100
+/* Atomic counters for TCP flags and connection states */
 static atomic_t flag_counter[TCP_FLAG_COUNT];
 static atomic_t state_counter[STATE_COUNT];
 static atomic_t null_scan_counter;
@@ -40,6 +44,7 @@ static atomic_t null_scan_counter;
 */
 static atomic_t syn_fin_counter;
 static atomic_t xmas_scan_counter;
+static atomic_t syn_flood_counter;
 
 
 /*
@@ -90,8 +95,18 @@ printk(KERN_INFO
        tcp_header->psh,
        tcp_header->urg);
 
-       if (tcp_header->syn)
+if (tcp_header->syn)
+{
     atomic_inc(&flag_counter[TCP_SYN]);
+
+    if (atomic_read(&flag_counter[TCP_SYN]) >= SYN_FLOOD_THRESHOLD)
+    {
+        atomic_inc(&syn_flood_counter);
+
+        printk(KERN_WARNING
+               "ALERT: Possible SYN Flood detected!\n");
+    }
+}
 
 if (tcp_header->ack)
     atomic_inc(&flag_counter[TCP_ACK]);
@@ -118,9 +133,13 @@ if (tcp_header->syn && tcp_header->ack)
 
 if (!tcp_header->syn &&
     tcp_header->ack &&
+    !tcp_header->fin &&
+    !tcp_header->rst &&
     !tcp_header->psh &&
-    !tcp_header->fin)
+    !tcp_header->urg)
+ {
     atomic_inc(&state_counter[STATE_ACK]);
+}   
 
 if (tcp_header->fin)
     atomic_inc(&state_counter[STATE_FIN]);
@@ -217,6 +236,9 @@ static int __init tcp_flag_init(void)
     /* The xmas packet for advanced project
     */
     atomic_set(&xmas_scan_counter, 0);
+    /* The syn flood packet for advanced project
+    */
+    atomic_set(&syn_flood_counter, 0);
 
     ret = nf_register_net_hook(&init_net, &nfho);
 
@@ -260,10 +282,16 @@ static void __exit tcp_flag_exit(void)
     /* Advanced project to check syn+fin stealth detection and syn flood detection */
     printk(KERN_INFO "SYN+FIN Detected : %d\n", atomic_read(&syn_fin_counter));
     printk(KERN_INFO "NULL Scan Detected : %d\n", atomic_read(&null_scan_counter));
+    /* The xmas packet for advanced project
+    */
+    printk(KERN_INFO "XMAS Scan Detected : %d\n", atomic_read(&xmas_scan_counter));
+    /* The syn flood packet for advanced project
+    */
+    printk(KERN_INFO "SYN Flood Detected : %d\n", atomic_read(&syn_flood_counter));
 
     /* Module unloaded message */
     printk(KERN_INFO "TCP Flag Analyzer Unloaded\n");
-    printk(KERN_INFO "XMAS Scan Detected : %d\n", atomic_read(&xmas_scan_counter));
+    
 }
 
 module_init(tcp_flag_init);
