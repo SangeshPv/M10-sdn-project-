@@ -25,6 +25,25 @@ NULL scans
 
 XMAS scans
 
+===============================Development Progress=====================================
+
+The project was developed in 5 parts 
+
+Part 1: Is the initial build where i tested compliling and loading the kernel module and seeing an output using a the printk function to load and unload the module
+
+Part 2: Is where i started the basic project of adding functions to count how many TCP packets contain each TCP flag.
+
+Part 3: Once i confirmed that the TCP packets are reported successfully i started monitoring the functions to check the different connection states in the TCP packets like syn,ack,fin,rst,psh.
+
+Part 4: Once the previous part was reported successfully i started to work on the advanced part of the project where i need to monitor suspicious packets such as SYN Flood attacks,SYN+FIN scans,NULL scans,XMAS scans.But i still didn't drop the packets as i wanted to be sure it is working.
+
+Part 5: Is the part where i also implemented the function to drop the packets and set the limit to 100 packets but it can be configured easily as its in the top of the file.
+
+
+
+
+
+
 
 ===============================Project for SDN TCP analyzer testing ====================
  
