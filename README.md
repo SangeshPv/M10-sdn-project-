@@ -1,16 +1,38 @@
 # M10-sdn-project-
-Project for SDN TCP analyzer
-How to enter the root folder
-cd /root/projects/tcp-flag-analyzer
+Overall Purpose
+This kernel module attaches to the Netfilter PRE_ROUTING hook and inspects every incoming IPv4 TCP packet before the Linux kernel decides what to do with it.
+It performs three levels of functionality:
+Basic
+Counts how many TCP packets contain each TCP flag.
+Intermediate
+Maintains counters representing different TCP connection states.
+Advanced
+Detects suspicious packets such as:
+SYN Flood attacks
+SYN+FIN scans
+NULL scans
+XMAS scans
+The module keeps statistics using atomic counters so they are safe to update even when multiple CPUs process packets simultaneously.
 
+
+Project for SDN TCP analyzer testing 
+How to enter the root folder
+sudo su and password
+then git clone
+git clone https://github.com/sdnsangesh/tcp-flag-analyzer.git
+cd tcp-flag-analyzer
+or 
+cd /root/projects/tcp-flag-analyzer
 testing after entering the root folder
+The Make file needs to be modified based on what you are testing basic,intermidiate,advanced rename this line
+obj-m += tcp_flag_analyzer.o (the name of the file obj-m += tcp_flag_analyzer_basic.o) to run the right makefile 
 make clean
 make
-
 sudo insmod tcp_flag_analyzer.ko
 curl https://google.com
 sudo rmmod tcp_flag_analyzer
 dmesg | tail -50
+
 
 
 OUTPUT FOR THE BASIC PROJECT

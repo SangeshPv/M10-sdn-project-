@@ -1,16 +1,21 @@
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
+/* Netfilter includes */
 #include <linux/netfilter.h>
 #include <linux/netfilter_ipv4.h>
+/* Socket buffer and IP header includes */
 #include <linux/ip.h>
+/* TCP header includes */
 #include <linux/tcp.h>
+/* Atomic includes used to monitor flag counts over all the cores */
 #include <linux/atomic.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Sangesh");
 MODULE_DESCRIPTION("TCP Flag Analyzer");
 MODULE_VERSION("0.1");
+/* TCP Flag Indexes */
 enum tcp_flag_index {
     TCP_FIN = 0,
     TCP_SYN,
@@ -21,6 +26,7 @@ enum tcp_flag_index {
     TCP_FLAG_COUNT
 };
 /*This intermediate project to monitor the state of the TCP connection */
+/* TCP Connection State Indexes */
 enum tcp_conn_state {
     STATE_SYN = 0,
     STATE_SYN_ACK,
@@ -31,11 +37,11 @@ enum tcp_conn_state {
     STATE_COUNT
 };
 static atomic_t flag_counter[TCP_FLAG_COUNT];
+/* Connection state counters */
 static atomic_t state_counter[STATE_COUNT];
-
-/*
- * Netfilter Hook Function
- * Called whenever a TCP packet reaches PRE_ROUTING.
+/* This function analyzes the TCP flags and connection states of the packet.
+ * It increments the corresponding counters for each flag and state.
+ * Finally, it returns NF_ACCEPT to allow the packet to continue through the network stack.
  */
 static unsigned int packet_hook(void *priv,
                                 struct sk_buff *skb,
@@ -45,33 +51,32 @@ static unsigned int packet_hook(void *priv,
     struct tcphdr *tcp_header;
 
     /* Safety check */
+    /* If skb is NULL, return NF_ACCEPT to allow the packet to continue */
 if (!skb)
     return NF_ACCEPT;
 
 ip_header = ip_hdr(skb);
-
+/* If ip_header is NULL, return NF_ACCEPT to allow the packet to continue */
 if (!ip_header)
     return NF_ACCEPT;
-
 /* Only process TCP packets */
 if (ip_header->protocol != IPPROTO_TCP)
     return NF_ACCEPT;
-
 /* Get TCP header */
 tcp_header = tcp_hdr(skb);
-
+/* If tcp_header is NULL, return NF_ACCEPT to allow the packet to continue */
 if (!tcp_header)
     return NF_ACCEPT;
    /* Print packet information */
 printk(KERN_INFO "TCP Packet\n");
 printk(KERN_INFO "Source IP: %pI4\n", &ip_header->saddr);
 printk(KERN_INFO "Destination IP: %pI4\n", &ip_header->daddr);
-
+/* Print source and destination ports */
 printk(KERN_INFO
        "Ports: %u -> %u\n",
        ntohs(tcp_header->source),
        ntohs(tcp_header->dest));
-
+/* Print TCP flags */
 printk(KERN_INFO
        "Flags: SYN=%d ACK=%d FIN=%d RST=%d PSH=%d URG=%d\n",
        tcp_header->syn,
@@ -80,7 +85,7 @@ printk(KERN_INFO
        tcp_header->rst,
        tcp_header->psh,
        tcp_header->urg);
-
+/* Increment the corresponding counters for each TCP flag */
        if (tcp_header->syn)
     atomic_inc(&flag_counter[TCP_SYN]);
 
@@ -123,13 +128,14 @@ if (tcp_header->psh && tcp_header->ack)
     atomic_inc(&state_counter[STATE_ESTABLISHED]);    
 return NF_ACCEPT;
 }
+/* Netfilter hook structure */
 static struct nf_hook_ops nfho = {
     .hook = packet_hook,
     .hooknum = NF_INET_PRE_ROUTING,
     .pf = PF_INET,
     .priority = NF_IP_PRI_FIRST,
 };
-
+/* Module initialization function */
 static int __init tcp_flag_init(void)
 {
     int ret;
@@ -154,12 +160,7 @@ static int __init tcp_flag_init(void)
 
     return 0;
 }
-
-/*
- * Netfilter Hook Function
- * Called whenever an IPv4 packet reaches the PRE_ROUTING hook.
- */
-
+/* Module exit function */
 static void __exit tcp_flag_exit(void)
 {
     /* First unregister the Netfilter hook */
@@ -173,7 +174,7 @@ static void __exit tcp_flag_exit(void)
     printk(KERN_INFO "RST : %d\n", atomic_read(&flag_counter[TCP_RST]));
     printk(KERN_INFO "PSH : %d\n", atomic_read(&flag_counter[TCP_PSH]));
     printk(KERN_INFO "URG : %d\n", atomic_read(&flag_counter[TCP_URG]));
-
+    /* Print the final connection state statistics */
     printk(KERN_INFO "===== TCP Connection State Statistics =====\n");
     printk(KERN_INFO "STATE_SYN : %d\n", atomic_read(&state_counter[STATE_SYN]));
     printk(KERN_INFO "STATE_SYN_ACK : %d\n", atomic_read(&state_counter[STATE_SYN_ACK]));
