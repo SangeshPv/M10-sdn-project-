@@ -1,5 +1,5 @@
 # M10-sdn-project-
-Overall Purpose
+================================================Overall Purpose==========================================================
 This kernel module attaches to the Netfilter PRE_ROUTING hook and inspects every incoming IPv4 TCP packet before the Linux kernel decides what to do with it.
 It performs three levels of functionality:
 Basic
@@ -7,15 +7,14 @@ Counts how many TCP packets contain each TCP flag.
 Intermediate
 Maintains counters representing different TCP connection states.
 Advanced
-Detects suspicious packets such as:
+Detects suspicious packets such as and drop:
 SYN Flood attacks
 SYN+FIN scans
 NULL scans
 XMAS scans
-The module keeps statistics using atomic counters so they are safe to update even when multiple CPUs process packets simultaneously.
 
 
-Project for SDN TCP analyzer testing 
+===================================Project for SDN TCP analyzer testing =================================================
 How to enter the root folder
 sudo su and password
 then git clone
@@ -35,7 +34,8 @@ dmesg | tail -50
 
 
 
-OUTPUT FOR THE BASIC PROJECT
+=====================================OUTPUT FOR THE BASIC PROJECT========================================================
+
 root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# insmod tcp_flag_analyzer.ko
 root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# for i in {1..10}
 do
@@ -97,7 +97,9 @@ root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyz
 
 
 
-Output for the intermidiate part for TCP analyzer State connection 
+ ====================Output for the intermidiate part for TCP analyzer State connection================================== 
+
+
 root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# insmod tcp_flag_analyzer.ko
 root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# for i in {1..10}; do     curl -s https://google.com > /dev/null; done
 root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# rmmod tcp_flag_analyzer
@@ -155,7 +157,8 @@ root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyz
 root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# 
 
 
-OUTPUT FOR THE ADVANCED PROJECT
+=======================OUTPUT FOR THE ADVANCED PROJECT WITHOUT DROPPING THE PACKETS======================================
+
 root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# sudo insmod tcp_flag_analyzer.ko
 root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# seq 1 2000 | xargs -P20 -I{} curl -s https://youtube.com > /dev/null
 root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# rmmod tcp_flag_analyzer
@@ -211,6 +214,69 @@ root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyz
 [ 1257.189033] SYN Flood Detected : 1885
 [ 1257.189036] TCP Flag Analyzer Unloaded
 root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# 
+
+============================OUTPUT FOR THE ADVANCED PROJECT WITH DROPPING THE PACKETS===================================
+
+root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# sudo insmod tcp_flag_analyzer.ko
+root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# seq 1 2000 | xargs -P20 -I{} curl -s https://youtube.com > /dev/null
+root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# rmmod tcp_flag_analyzer
+root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# dmesg | tail -50
+[  613.056152] ALERT: Possible SYN Flood detected!
+[  613.089903] TCP Packet
+[  613.089975] Source IP: 185.125.190.100
+[  613.090010] Destination IP: 192.168.64.10
+[  613.090042] Ports: 80 -> 38996
+[  613.090074] Flags: SYN=1 ACK=1 FIN=0 RST=0 PSH=0 URG=0
+[  613.090106] ALERT: Possible SYN Flood detected!
+[  613.319921] TCP Packet
+[  613.320002] Source IP: 91.189.91.97
+[  613.320038] Destination IP: 192.168.64.10
+[  613.320070] Ports: 80 -> 43706
+[  613.320103] Flags: SYN=1 ACK=1 FIN=0 RST=0 PSH=0 URG=0
+[  613.320135] ALERT: Possible SYN Flood detected!
+[  613.350025] TCP Packet
+[  613.350091] Source IP: 91.189.91.97
+[  613.350124] Destination IP: 192.168.64.10
+[  613.350157] Ports: 80 -> 43706
+[  613.350189] Flags: SYN=1 ACK=1 FIN=0 RST=0 PSH=0 URG=0
+[  613.350248] ALERT: Possible SYN Flood detected!
+[  625.399948] TCP Packet
+[  625.399963] Source IP: 185.125.190.101
+[  625.399972] Destination IP: 192.168.64.10
+[  625.399974] Ports: 80 -> 56318
+[  625.399976] Flags: SYN=1 ACK=1 FIN=0 RST=0 PSH=0 URG=0
+[  625.399982] ALERT: Possible SYN Flood detected!
+[  625.677328] TCP Packet
+[  625.677399] Source IP: 185.125.190.100
+[  625.677417] Destination IP: 192.168.64.10
+[  625.677430] Ports: 80 -> 55746
+[  625.677448] Flags: SYN=1 ACK=1 FIN=0 RST=0 PSH=0 URG=0
+[  625.677463] ALERT: Possible SYN Flood detected!
+[  625.812730] ===== TCP Flag Statistics =====
+[  625.812742] SYN : 2229
+[  625.812746] ACK : 1287
+[  625.812749] FIN : 80
+[  625.812752] RST : 6
+[  625.812755] PSH : 640
+[  625.812763] URG : 0
+[  625.812765] ===== TCP Connection State Statistics =====
+[  625.812769] STATE_SYN : 0
+[  625.812772] STATE_SYN_ACK : 99
+[  625.812775] STATE_ACK : 468
+[  625.812778] STATE_FIN : 80
+[  625.812781] STATE_RST : 6
+[  625.812783] STATE_ESTABLISHED : 640
+[  625.812786] SYN+FIN Detected : 0
+[  625.812789] NULL Scan Detected : 0
+[  625.812793] XMAS Scan Detected : 0
+[  625.812796] SYN Flood Detected : 2130
+[  625.812799] TCP Flag Analyzer Unloaded
+root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# 
+
+AS we can see the STATE_SYN_ACK : 99 as from the 100th packet is dropped
+
+==========================================================================================================================
+
 
 
 
