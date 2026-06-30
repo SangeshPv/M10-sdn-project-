@@ -15,7 +15,7 @@ NULL scans
 XMAS scans
 
 
-===================================Project for SDN TCP analyzer testing =================================================
+===============================Project for SDN TCP analyzer testing =====================
 How to enter the root folder
 sudo su and password
 then git clone
@@ -35,7 +35,7 @@ dmesg | tail -50
 
 
 
-=====================================OUTPUT FOR THE BASIC PROJECT========================================================
+================================OUTPUT FOR THE BASIC PROJECT=============================
 
 root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# insmod tcp_flag_analyzer.ko
 root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# for i in {1..10}
@@ -98,7 +98,7 @@ root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyz
 
 
 
- ====================Output for the intermidiate part for TCP analyzer State connection================================== 
+ ==============Output for the intermidiate part for TCP analyzer State connection======== 
 
 
 root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# insmod tcp_flag_analyzer.ko
@@ -158,7 +158,7 @@ root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyz
 root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# 
 
 
-=======================OUTPUT FOR THE ADVANCED PROJECT WITHOUT DROPPING THE PACKETS======================================
+===============OUTPUT FOR THE ADVANCED PROJECT WITHOUT DROPPING THE PACKETS==============
 
 root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# sudo insmod tcp_flag_analyzer.ko
 root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# seq 1 2000 | xargs -P20 -I{} curl -s https://youtube.com > /dev/null
@@ -216,7 +216,8 @@ root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyz
 [ 1257.189036] TCP Flag Analyzer Unloaded
 root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# 
 
-============================OUTPUT FOR THE ADVANCED PROJECT WITH DROPPING THE PACKETS===================================
+
+===============OUTPUT FOR THE ADVANCED PROJECT WITH DROPPING THE PACKETS=================
 
 root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# sudo insmod tcp_flag_analyzer.ko
 root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyzer# seq 1 2000 | xargs -P20 -I{} curl -s https://youtube.com > /dev/null
@@ -276,7 +277,7 @@ root@sdnsangesh-Apple-Virtualization-Generic-Platform:~/projects/tcp-flag-analyz
 
 AS we can see the STATE_SYN_ACK : 99 as from the 100th packet is dropped
 
-==========================================================================================================================
+=========================================================================================
 
 
 
