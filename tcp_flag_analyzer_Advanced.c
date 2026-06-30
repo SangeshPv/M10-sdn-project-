@@ -94,7 +94,7 @@ printk(KERN_INFO
        tcp_header->rst,
        tcp_header->psh,
        tcp_header->urg);
-/* Increment the corresponding counters for each TCP flag */
+/* If the SYN flag is set, increment the SYN counter and check for SYN flood */
 if (tcp_header->syn)
 {
     atomic_inc(&flag_counter[TCP_SYN]);
@@ -105,6 +105,7 @@ if (tcp_header->syn)
 
         printk(KERN_WARNING
                "ALERT: Possible SYN Flood detected!\n");
+               return NF_DROP;            
     }
 }
 if (tcp_header->ack)
@@ -168,7 +169,10 @@ if (tcp_header->syn && tcp_header->fin)
            "Destination: %pI4:%u\n",
            &ip_header->daddr,
            ntohs(tcp_header->dest));
-}    
+           
+    return NF_DROP;          
+} 
+   
 if (!tcp_header->syn &&
     !tcp_header->ack &&
     !tcp_header->fin &&
@@ -191,6 +195,8 @@ if (!tcp_header->syn &&
            "Destination: %pI4:%u\n",
            &ip_header->daddr,
            ntohs(tcp_header->dest));
+    return NF_DROP;
+
 }
 
 /* Detect XMAS packets */
@@ -210,9 +216,11 @@ if (tcp_header->fin && tcp_header->psh && tcp_header->urg)
            "Destination: %pI4:%u\n",
            &ip_header->daddr,
            ntohs(tcp_header->dest));
+    return NF_DROP;
+       
 }
-
 return NF_ACCEPT;
+
 }
 /* Netfilter hook structure */
 static struct nf_hook_ops nfho = {
