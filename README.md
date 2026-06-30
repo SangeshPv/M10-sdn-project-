@@ -16,21 +16,40 @@ XMAS scans
 
 
 ===============================Project for SDN TCP analyzer testing ====================
+ 
 How to enter the root folder
+
 sudo su and password
+
+apt update
+
+apt install git make curl 
+
 then git clone
+
 git clone https://github.com/sdnsangesh/tcp-flag-analyzer.git
+
 cd tcp-flag-analyzer
+
 or 
+
 cd /root/projects/tcp-flag-analyzer
+
 testing after entering the root folder
+
 The Make file needs to be modified based on what you are testing basic,intermidiate,advanced rename this line
 obj-m += tcp_flag_analyzer.o (the name of the file obj-m += tcp_flag_analyzer_basic.o) to run the right makefile 
+
 make clean
+
 make
+
 sudo insmod tcp_flag_analyzer.ko
+
 curl https://google.com
+
 sudo rmmod tcp_flag_analyzer
+
 dmesg | tail -50
 
 
