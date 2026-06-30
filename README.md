@@ -39,10 +39,36 @@ Part 4: Once the previous part was reported successfully i started to work on th
 
 Part 5: Is the part where i also implemented the function to drop the packets and set the limit to 100 packets but it can be configured easily as its in the top of the file.
 
+=================================How it works===========================================
 
+Network Interface
 
+        ↓
 
+Netfilter Hook (PRE_ROUTING)
 
+        ↓
+
+Check IPv4 Packet
+
+        ↓
+
+Check TCP Header
+
+        ↓
+
+Read TCP Flags
+
+        ↓
+
+Update Counters
+
+        ↓
+Update Statistics
+
+        ↓
+
+Drop Packet if suspicious or Pass Packet
 
 
 ===============================Project for SDN TCP analyzer testing ====================
