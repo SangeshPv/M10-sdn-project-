@@ -14,7 +14,7 @@
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Sangesh");
 MODULE_DESCRIPTION("TCP Flag Analyzer");
-MODULE_VERSION("0.1");
+MODULE_VERSION("0.2");
 /* TCP Flag Indexes */
 enum tcp_flag_index {
     TCP_FIN = 0,
